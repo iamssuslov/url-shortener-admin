@@ -1,0 +1,273 @@
+{% extends "base.html" %}
+
+{% block title %}Links Dashboard · URL Shortener{% endblock %}
+
+{% block content %}
+<div class="page-shell">
+  <div class="topbar">
+    <div class="brand">
+      <div class="brand-badge">US</div>
+      <div>
+        <h1 class="brand-title">Links</h1>
+        <p class="brand-subtitle">Manage, filter, inspect and control your short links</p>
+      </div>
+    </div>
+
+    <div class="topbar-cta">
+      <button type="button" class="btn-secondary theme-toggle" data-theme-toggle>
+        <i data-lucide="moon-star"></i>
+        Toggle theme
+      </button>
+      <form class="logout-form" method="post" action="/admin/logout">
+        <button type="submit" class="btn-secondary">
+          <i data-lucide="log-out"></i>
+          Logout
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <div class="panel panel-glow hero-card">
+    <h2 class="hero-title">Link operations dashboard</h2>
+    <p class="hero-text">
+      View all generated short links, inspect their status, audit lifecycle changes,
+      monitor clicks, and quickly act on blocked, expired, or deleted items.
+    </p>
+  </div>
+
+  <div class="grid grid-3" style="margin-bottom: 20px;">
+    <div class="panel stat-card stat-card-accent-purple">
+      <div class="stat-icon"><i data-lucide="link-2"></i></div>
+      <div class="stat-label">Total visible items</div>
+      <div class="stat-value">{{ total }}</div>
+      <div class="stat-meta"><div class="stat-progress" style="width: 82%;"></div></div>
+    </div>
+
+    <div class="panel stat-card stat-card-accent-cyan">
+      <div class="stat-icon"><i data-lucide="layout-dashboard"></i></div>
+      <div class="stat-label">Current page</div>
+      <div class="stat-value">{{ page }} / {{ total_pages }}</div>
+      <div class="stat-meta"><div class="stat-progress" style="width: 68%;"></div></div>
+    </div>
+
+    <div class="panel stat-card stat-card-accent-green">
+      <div class="stat-icon"><i data-lucide="table-properties"></i></div>
+      <div class="stat-label">View mode</div>
+      <div class="stat-value">{{ page_size }} per page</div>
+      <div class="stat-meta"><div class="stat-progress" style="width: 56%;"></div></div>
+    </div>
+  </div>
+
+  <div class="dashboard-summary">
+    <div class="panel panel-glow summary-card">
+      <div class="summary-header">
+        <div>
+          <h3 class="summary-title">Workspace overview</h3>
+          <p class="summary-subtitle">A quick snapshot of what you are currently managing.</p>
+        </div>
+        <div class="summary-badge">
+          <i data-lucide="sparkles"></i>
+          Stylish mode
+        </div>
+      </div>
+
+      <div class="summary-list">
+        <div class="summary-item">
+          <span class="summary-item-label">Filter mode</span>
+          <span class="summary-item-value">{{ sort }}</span>
+        </div>
+        <div class="summary-item">
+          <span class="summary-item-label">Deleted visibility</span>
+          <span class="summary-item-value">{{ include_deleted if include_deleted else "hidden" }}</span>
+        </div>
+        <div class="summary-item">
+          <span class="summary-item-label">Search query</span>
+          <span class="summary-item-value">{{ q if q else "none" }}</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="panel summary-card">
+      <div class="summary-header">
+        <div>
+          <h3 class="summary-title">Quick actions</h3>
+          <p class="summary-subtitle">Shortcuts for common admin tasks.</p>
+        </div>
+      </div>
+
+      <div class="actions-inline">
+        <a class="btn btn-secondary" href="/api/v1/links/export">
+          <i data-lucide="download"></i>
+          Export CSV
+        </a>
+        <a class="btn btn-secondary" href="/admin/links">
+          <i data-lucide="refresh-cw"></i>
+          Refresh
+        </a>
+      </div>
+
+      <p class="timeline-note">
+        Use filters below to narrow down blocked, expired or deleted links without leaving the page.
+      </p>
+    </div>
+  </div>
+
+  <form class="panel toolbar" method="get" action="/admin/links">
+    <div class="field">
+      <label for="q">Search</label>
+      <input id="q" name="q" value="{{ q }}" placeholder="search code or url..." />
+    </div>
+
+    <div class="field">
+      <label for="blocked">Blocked</label>
+      <select id="blocked" name="blocked">
+        <option value="" {% if blocked == "" %}selected{% endif %}>All blocked states</option>
+        <option value="yes" {% if blocked == "yes" %}selected{% endif %}>Blocked only</option>
+        <option value="no" {% if blocked == "no" %}selected{% endif %}>Active only</option>
+      </select>
+    </div>
+
+    <div class="field">
+      <label for="expired">Expired</label>
+      <select id="expired" name="expired">
+        <option value="" {% if expired == "" %}selected{% endif %}>All expiration states</option>
+        <option value="yes" {% if expired == "yes" %}selected{% endif %}>Expired only</option>
+        <option value="no" {% if expired == "no" %}selected{% endif %}>Not expired only</option>
+      </select>
+    </div>
+
+    <div class="field">
+      <label for="include_deleted">Deleted</label>
+      <select id="include_deleted" name="include_deleted">
+        <option value="" {% if include_deleted == "" %}selected{% endif %}>Hide deleted</option>
+        <option value="yes" {% if include_deleted == "yes" %}selected{% endif %}>Show deleted</option>
+      </select>
+    </div>
+
+    <div class="field">
+      <label for="sort">Sort</label>
+      <select id="sort" name="sort">
+        <option value="clicks_desc" {% if sort == "clicks_desc" %}selected{% endif %}>Clicks desc</option>
+        <option value="clicks_asc" {% if sort == "clicks_asc" %}selected{% endif %}>Clicks asc</option>
+        <option value="created_desc" {% if sort == "created_desc" %}selected{% endif %}>Created desc</option>
+        <option value="created_asc" {% if sort == "created_asc" %}selected{% endif %}>Created asc</option>
+      </select>
+    </div>
+
+    <div class="field">
+      <label for="page_size">Page size</label>
+      <select id="page_size" name="page_size">
+        <option value="5" {% if page_size == 5 %}selected{% endif %}>5</option>
+        <option value="10" {% if page_size == 10 %}selected{% endif %}>10</option>
+        <option value="20" {% if page_size == 20 %}selected{% endif %}>20</option>
+      </select>
+    </div>
+
+    <div class="field">
+      <label>&nbsp;</label>
+      <button type="submit">
+        <i data-lucide="sliders-horizontal"></i>
+        Apply
+      </button>
+    </div>
+  </form>
+
+  <div class="meta-row">
+    <div class="small-muted">Total: {{ total }} | Page: {{ page }} / {{ total_pages }}</div>
+    <div class="metric-inline">
+      <i data-lucide="activity"></i>
+      Real-time operational view
+    </div>
+  </div>
+
+  <div class="panel card">
+    <div class="section-header">
+      <div class="section-header-left">
+        <div class="section-icon"><i data-lucide="database-zap"></i></div>
+        <div>
+          <h3 class="section-title" style="margin-bottom: 4px;">Links table</h3>
+          <div class="small-muted">Actionable data with lifecycle status and admin controls.</div>
+        </div>
+      </div>
+    </div>
+
+    {% if links %}
+    <div class="table-wrap">
+      <table class="table">
+        <thead>
+          <tr>
+            <th>Code</th>
+            <th>Target</th>
+            <th>Clicks</th>
+            <th>Blocked</th>
+            <th>Expired</th>
+            <th>Deleted</th>
+            <th>Expires at</th>
+            <th>Max clicks</th>
+            <th>Action</th>
+            <th>Delete</th>
+            <th>Details</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for l in links %}
+          <tr>
+            <td><span class="code-pill">{{ l.code }}</span></td>
+            <td>
+              <div class="link-cell-wrap">
+                <div class="link-cell-icon"><i data-lucide="globe"></i></div>
+                <div class="link-cell">{{ l.target_url }}</div>
+              </div>
+            </td>
+            <td>{{ l.clicks }}</td>
+            <td><span class="chip {% if l.is_blocked %}danger{% else %}success{% endif %}">{{ "yes" if l.is_blocked else "no" }}</span></td>
+            <td><span class="chip {% if l.is_expired %}warning{% else %}success{% endif %}">{{ "yes" if l.is_expired else "no" }}</span></td>
+            <td><span class="chip {% if l.is_deleted %}danger{% else %}info{% endif %}">{{ "yes" if l.is_deleted else "no" }}</span></td>
+            <td>{{ l.expires_at if l.expires_at else "-" }}</td>
+            <td>{{ l.max_clicks if l.max_clicks else "-" }}</td>
+            <td>
+              {% if not l.is_deleted %}
+              <form class="inline-form" method="post" action="/admin/links/{{ l.code }}/toggle">
+                <button type="submit">{{ "Unblock" if l.is_blocked else "Block" }}</button>
+              </form>
+              {% else %}
+              <span class="small-muted">-</span>
+              {% endif %}
+            </td>
+            <td>
+              {% if not l.is_deleted %}
+              <form class="inline-form" method="post" action="/admin/links/{{ l.code }}/delete">
+                <button type="submit" class="btn-danger">Delete</button>
+              </form>
+              {% else %}
+              <span class="small-muted">-</span>
+              {% endif %}
+            </td>
+            <td><a href="/admin/links/{{ l.code }}">Open</a></td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% else %}
+    <div class="empty-state empty-state-strong">
+      <div class="empty-icon">✨</div>
+      <div class="empty-state-title">No links matched your filters</div>
+      <div class="empty-state-text">
+        Try changing the search query, showing deleted items, or resetting filters.
+      </div>
+    </div>
+    {% endif %}
+
+    <div class="pagination">
+      {% if page > 1 %}
+      <a class="btn btn-secondary" href="/admin/links?q={{ q }}&blocked={{ blocked }}&expired={{ expired }}&include_deleted={{ include_deleted }}&sort={{ sort }}&page={{ page - 1 }}&page_size={{ page_size }}">Previous</a>
+      {% endif %}
+
+      {% if page < total_pages %}
+      <a class="btn btn-secondary" href="/admin/links?q={{ q }}&blocked={{ blocked }}&expired={{ expired }}&include_deleted={{ include_deleted }}&sort={{ sort }}&page={{ page + 1 }}&page_size={{ page_size }}">Next</a>
+      {% endif %}
+    </div>
+  </div>
+</div>
+{% endblock %}

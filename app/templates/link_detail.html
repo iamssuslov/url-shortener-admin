@@ -1,0 +1,166 @@
+{% extends "base.html" %}
+
+{% block title %}Link Details · URL Shortener{% endblock %}
+
+{% block content %}
+<div class="page-shell">
+  <div class="topbar">
+    <div class="brand">
+      <div class="brand-badge">US</div>
+      <div>
+        <h1 class="brand-title">Link details</h1>
+        <p class="brand-subtitle">Lifecycle overview and click audit trail</p>
+      </div>
+    </div>
+
+    <div class="topbar-cta">
+      <button type="button" class="btn-secondary theme-toggle" data-theme-toggle>
+        <i data-lucide="moon-star"></i>
+        Toggle theme
+      </button>
+      <a class="btn btn-secondary" href="/admin/links">
+        <i data-lucide="arrow-left"></i>
+        Back
+      </a>
+    </div>
+  </div>
+
+  <div class="detail-hero-grid">
+    <div class="panel panel-glow hero-card">
+      <h2 class="hero-title">{{ link.code }}</h2>
+      <p class="hero-text">
+        Detailed operational view for a single short link including lifecycle state and click history.
+      </p>
+
+      <div class="chip-row" style="margin-top: 18px;">
+        <span class="chip {% if link.is_blocked %}danger{% else %}success{% endif %}">
+          <i class="pill-icon" data-lucide="shield-alert"></i>
+          Blocked: {{ "yes" if link.is_blocked else "no" }}
+        </span>
+        <span class="chip {% if link.is_expired %}warning{% else %}success{% endif %}">
+          <i class="pill-icon" data-lucide="timer-reset"></i>
+          Expired: {{ "yes" if link.is_expired else "no" }}
+        </span>
+        <span class="chip {% if link.is_deleted %}danger{% else %}info{% endif %}">
+          <i class="pill-icon" data-lucide="trash-2"></i>
+          Deleted: {{ "yes" if link.is_deleted else "no" }}
+        </span>
+      </div>
+    </div>
+
+    <div class="panel summary-card">
+      <div class="summary-header">
+        <div>
+          <h3 class="summary-title">Quick metrics</h3>
+          <p class="summary-subtitle">At-a-glance summary for this link.</p>
+        </div>
+      </div>
+
+      <div class="summary-list">
+        <div class="summary-item">
+          <span class="summary-item-label">Code</span>
+          <span class="summary-item-value">{{ link.code }}</span>
+        </div>
+        <div class="summary-item">
+          <span class="summary-item-label">Clicks</span>
+          <span class="summary-item-value">{{ link.clicks }}</span>
+        </div>
+        <div class="summary-item">
+          <span class="summary-item-label">Max clicks</span>
+          <span class="summary-item-value">{{ link.max_clicks if link.max_clicks else "-" }}</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="grid grid-2" style="margin-top: 20px;">
+    <div class="panel card">
+      <div class="section-header">
+        <div class="section-header-left">
+          <div class="section-icon"><i data-lucide="info"></i></div>
+          <div>
+            <h3 class="section-title" style="margin-bottom: 4px;">Overview</h3>
+            <div class="small-muted">Core metadata and current status.</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="details-list">
+        <div class="detail-item"><div class="detail-label">Code</div><div class="detail-value">{{ link.code }}</div></div>
+        <div class="detail-item"><div class="detail-label">Target</div><div class="detail-value">{{ link.target_url }}</div></div>
+        <div class="detail-item"><div class="detail-label">Clicks</div><div class="detail-value">{{ link.clicks }}</div></div>
+        <div class="detail-item"><div class="detail-label">Blocked</div><div class="detail-value">{{ "yes" if link.is_blocked else "no" }}</div></div>
+        <div class="detail-item"><div class="detail-label">Expired</div><div class="detail-value">{{ "yes" if link.is_expired else "no" }}</div></div>
+        <div class="detail-item"><div class="detail-label">Deleted</div><div class="detail-value">{{ "yes" if link.is_deleted else "no" }}</div></div>
+        <div class="detail-item"><div class="detail-label">Expires at</div><div class="detail-value">{{ link.expires_at if link.expires_at else "-" }}</div></div>
+        <div class="detail-item"><div class="detail-label">Max clicks</div><div class="detail-value">{{ link.max_clicks if link.max_clicks else "-" }}</div></div>
+      </div>
+    </div>
+
+    <div class="panel card">
+      <div class="section-header">
+        <div class="section-header-left">
+          <div class="section-icon"><i data-lucide="badges"></i></div>
+          <div>
+            <h3 class="section-title" style="margin-bottom: 4px;">State highlights</h3>
+            <div class="small-muted">Visual summary of the current lifecycle state.</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="chip-row">
+        <span class="chip {% if link.is_blocked %}danger{% else %}success{% endif %}">Blocked: {{ "yes" if link.is_blocked else "no" }}</span>
+        <span class="chip {% if link.is_expired %}warning{% else %}success{% endif %}">Expired: {{ "yes" if link.is_expired else "no" }}</span>
+        <span class="chip {% if link.is_deleted %}danger{% else %}info{% endif %}">Deleted: {{ "yes" if link.is_deleted else "no" }}</span>
+      </div>
+
+      <p class="timeline-note">
+        Use this detail page to inspect operational state and correlate it with click history below.
+      </p>
+    </div>
+  </div>
+
+  <div class="panel card" style="margin-top: 20px;">
+    <div class="section-header">
+      <div class="section-header-left">
+        <div class="section-icon"><i data-lucide="activity"></i></div>
+        <div>
+          <h3 class="section-title" style="margin-bottom: 4px;">Click events</h3>
+          <div class="small-muted">Recent click activity captured for this link.</div>
+        </div>
+      </div>
+    </div>
+
+    {% if events %}
+    <div class="table-wrap">
+      <table class="table">
+        <thead>
+          <tr>
+            <th>Clicked at</th>
+            <th>IP</th>
+            <th>User-Agent</th>
+            <th>Referrer</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for e in events %}
+          <tr>
+            <td>{{ e.clicked_at }}</td>
+            <td>{{ e.ip if e.ip else "-" }}</td>
+            <td>{{ e.user_agent if e.user_agent else "-" }}</td>
+            <td>{{ e.referrer if e.referrer else "-" }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% else %}
+    <div class="empty-state empty-state-strong">
+      <div class="empty-icon">🪄</div>
+      <div class="empty-state-title">No click events yet</div>
+      <div class="empty-state-text">Once the link is opened, the activity stream will appear here.</div>
+    </div>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

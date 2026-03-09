@@ -1,0 +1,25 @@
+# Python
+__pycache__/
+*.py[cod]
+*.so
+.python-version
+.pytest_cache/
+
+# Virtualenv
+.venv/
+venv/
+
+# DB
+app.db
+test.db
+
+# IDE
+.idea/
+.vscode/
+
+# macOS
+.DS_Store
+
+# Playwright
+playwright-report/
+test-results/

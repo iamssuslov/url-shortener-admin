@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+
+{% block title %}{{ status_code }} · URL Shortener{% endblock %}
+
+{% block content %}
+<div class="error-shell">
+  <div class="panel panel-strong panel-glow error-card">
+    <div class="error-code">{{ status_code }}</div>
+    <h1 class="error-title">{{ title }}</h1>
+    <p class="error-message">{{ message }}</p>
+
+    <div class="actions-inline" style="justify-content: center;">
+      <button type="button" class="btn-secondary theme-toggle" data-theme-toggle>
+        <i data-lucide="moon-star"></i>
+        Toggle theme
+      </button>
+      <a class="btn btn-primary" href="/admin/login">
+        <i data-lucide="log-in"></i>
+        Go to login
+      </a>
+      <a class="btn btn-secondary" href="/admin/links">
+        <i data-lucide="layout-dashboard"></i>
+        Open dashboard
+      </a>
+    </div>
+  </div>
+</div>
+{% endblock %}

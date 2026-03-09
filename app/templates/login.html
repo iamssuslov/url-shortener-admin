@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+
+{% block title %}Admin Login · URL Shortener{% endblock %}
+
+{% block content %}
+<div class="login-shell">
+  <div class="panel panel-strong panel-glow login-card">
+    <div class="footer-row" style="margin-top: 0; margin-bottom: 18px;">
+      <div class="brand">
+        <div class="brand-badge">US</div>
+        <div>
+          <h1 class="brand-title">URL Shortener</h1>
+          <p class="brand-subtitle">Elegant admin access for your link workspace</p>
+        </div>
+      </div>
+
+      <button type="button" class="btn-secondary theme-toggle" data-theme-toggle>
+        <i data-lucide="moon-star"></i>
+        Toggle theme
+      </button>
+    </div>
+
+    <h2 class="login-title">Admin login</h2>
+    <p class="login-subtitle">
+      Sign in to manage links, monitor traffic, and control lifecycle states.
+    </p>
+
+    <form class="login-form" method="post" action="/admin/login">
+      <div class="field">
+        <label for="username">Username</label>
+        <input id="username" name="username" placeholder="username" />
+      </div>
+
+      <div class="field">
+        <label for="password">Password</label>
+        <input id="password" name="password" placeholder="password" type="password" />
+      </div>
+
+      <button type="submit">
+        <i data-lucide="log-in"></i>
+        Login
+      </button>
+    </form>
+  </div>
+</div>
+{% endblock %}
